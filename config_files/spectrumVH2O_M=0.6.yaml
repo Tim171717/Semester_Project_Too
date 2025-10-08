@@ -49,7 +49,7 @@ RUN SETTINGS:
     thermal: false
   log_top_pressure: -4
   n_layers: 100
-  output_folder: /home/tfessler/results/spectrum_run_M/spectrumVH2O_M=0.6.txt
+  output_folder: /home/ipa/quanz/user_accounts/tfessler/results/spectrum_run_M/spectrumVH2O_M=0.6.txt
   resolution: 100
   wavelength_range:
   - 3.5
