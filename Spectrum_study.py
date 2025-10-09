@@ -8,11 +8,13 @@ import pyautogui
 import time
 
 c = Connection('tfessler@rainbow', connect_kwargs={"password": "Dl2oP1AjOjO6"})
-runname = 'M'
-local_dir = "config_files_run_" + runname
+runname = 'bigger_M'
+local_dir = "Run_" + runname
 remote_dir = "/home/ipa/quanz/user_accounts/tfessler/config_files/run_" + runname
+remote_outfol = "/home/ipa/quanz/user_accounts/tfessler/results/spectrum_run_" + runname
 os.makedirs(local_dir, exist_ok=True)
-os.makedirs(os.path.join(local_dir, "spectra_results"), exist_ok=True)
+file_path = os.path.abspath(__file__)
+file_dir = os.path.dirname(file_path)
 
 
 def represent_ordereddict(dumper, data):
@@ -21,7 +23,7 @@ def represent_ordereddict(dumper, data):
 yaml.add_representer(OrderedDict, represent_ordereddict)
 
 
-ms = np.arange(0.6, 2.1, 0.2)
+ms = np.arange(0.6, 4.1, 0.4)
 filenames = []
 
 for m in ms:
@@ -30,7 +32,7 @@ for m in ms:
     yaml_dict = OrderedDict({
     		"RUN SETTINGS": OrderedDict({
         		"wavelength_range": [3.5, 19.5],
-        		"output_folder": "/home/ipa/quanz/user_accounts/tfessler/results/spectrum_run_" + runname + '/' + filename,
+        		"output_folder": remote_outfol + '/' + filename,
         		"include_scattering": OrderedDict({
             		"Rayleigh": False,
             		"thermal": False,
@@ -79,35 +81,44 @@ for m in ms:
 
 
 c.run(f"mkdir -p {remote_dir}")
+c.run(f"mkdir -p {remote_outfol}")
 for file in os.listdir(local_dir):
     local_path = os.path.join(local_dir, file)
     if os.path.isfile(local_path):
         c.put(local_path, remote=f"{remote_dir}/{file}")
-        print(f"Uploaded {file}")
+
 
 ### --------------------------------------------
 for filename in filenames:
-    pyautogui.click(...)
-    pyautogui.write(f"python /home/ipa/quanz/user_accounts/tfessler/software/pyRetLIFE/scripts/create_spectrum.py --config ~/config_files/VH2O_create_spectrum.yaml")
+    pyautogui.click(2000, 300)
+    pyautogui.write(f"python /home/ipa/quanz/user_accounts/tfessler/software/pyRetLIFE/scripts/create_spectrum.py --config {remote_dir}/{filename[:-4]}.yaml")
     pyautogui.press('enter')
-    if filename is in filenames[:-1]:
-        time.sleep(...)
+    time.sleep(10)
+
+pyautogui.click(2000, 1000)
+pyautogui.write(f'scp -r tfessler')
+pyautogui.hotkey("ctrl", "alt", "2")
+pyautogui.write(f'rainbow:{remote_outfol} {os.path.join(file_dir,local_dir)}')
+pyautogui.press('enter')
+time.sleep(1)
+pyautogui.write('Dl2oP1AjOjO6')
+pyautogui.press('enter')
+time.sleep(3)
 ### ----------------------------------------------
 
-
-c.get("/home/ipa/quanz/user_accounts/tfessler/results/spectrum_run_" + runname, local_dir, recursive=True)
 
 plt.figure(figsize=(8, 5))
 
 for filename in filenames:
-    path = os.path.join(folder, local_dir + '/spectrum_run_' + runname)
-    data = np.loadtxt(path, delimiter=',', skiprows=0)
-    plt.plot(data[:, 0], data[:, 1], label=filename)
+    path = os.path.join(local_dir + '/spectrum_run_' + runname, filename)
+    data = np.loadtxt(path, skiprows=0)
+    plt.plot(data[:, 0], data[:, 1], label='M = ' + str(int(filename[15:len(filename)-4])/10))
 plt.xlabel('wavelength')
 plt.ylabel('intensity')
 plt.title('Spectrum run ' + runname)
 plt.legend()
 plt.tight_layout()
+plt.savefig('spectrum_comparisons/spectrum_run_' + runname + '.png')
 plt.show()
 
 
