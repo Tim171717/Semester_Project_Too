@@ -4,12 +4,15 @@ import os
 import yaml
 from fabric import Connection
 from collections import OrderedDict
+import pyautogui
+import time
 
 c = Connection('tfessler@rainbow', connect_kwargs={"password": "Dl2oP1AjOjO6"})
 runname = 'M'
 local_dir = "config_files_run_" + runname
 remote_dir = "/home/ipa/quanz/user_accounts/tfessler/config_files/run_" + runname
 os.makedirs(local_dir, exist_ok=True)
+os.makedirs(os.path.join(local_dir, "spectra_results"), exist_ok=True)
 
 
 def represent_ordereddict(dumper, data):
@@ -22,12 +25,12 @@ ms = np.arange(0.6, 2.1, 0.2)
 filenames = []
 
 for m in ms:
-    filename = f"spectrumVH2O_M={int(m*10)}"
+    filename = f"spectrumVH2O_M={int(m*10)}.txt"
     filenames.append(filename)
     yaml_dict = OrderedDict({
     		"RUN SETTINGS": OrderedDict({
         		"wavelength_range": [3.5, 19.5],
-        		"output_folder": "/home/ipa/quanz/user_accounts/tfessler/results/spectrum_run_" + runname + '/' + filename + ".txt",
+        		"output_folder": "/home/ipa/quanz/user_accounts/tfessler/results/spectrum_run_" + runname + '/' + filename,
         		"include_scattering": OrderedDict({
             		"Rayleigh": False,
             		"thermal": False,
@@ -71,7 +74,7 @@ for m in ms:
     		}),
 	})
 
-    with open(local_dir + '/' + filename + ".yaml", "w") as f:
+    with open(local_dir + '/' + filename[:-4] + ".yaml", "w") as f:
         yaml.dump(yaml_dict, f, default_flow_style=False)
 
 
@@ -82,6 +85,48 @@ for file in os.listdir(local_dir):
         c.put(local_path, remote=f"{remote_dir}/{file}")
         print(f"Uploaded {file}")
 
-c.run('source /home/ipa/quanz/user_accounts/tfessler/myenv/bin/activate')
+### --------------------------------------------
 for filename in filenames:
-    c.run(f"python /home/ipa/quanz/user_accounts/tfessler/software/pyRetLIFE/scripts/create_spectrum.py --config ~/config_files/VH2O_create_spectrum.yaml")
+    pyautogui.click(...)
+    pyautogui.write(f"python /home/ipa/quanz/user_accounts/tfessler/software/pyRetLIFE/scripts/create_spectrum.py --config ~/config_files/VH2O_create_spectrum.yaml")
+    pyautogui.press('enter')
+    if filename is in filenames[:-1]:
+        time.sleep(...)
+### ----------------------------------------------
+
+
+c.get("/home/ipa/quanz/user_accounts/tfessler/results/spectrum_run_" + runname, local_dir, recursive=True)
+
+plt.figure(figsize=(8, 5))
+
+for filename in filenames:
+    path = os.path.join(folder, local_dir + '/spectrum_run_' + runname)
+    data = np.loadtxt(path, delimiter=',', skiprows=0)
+    plt.plot(data[:, 0], data[:, 1], label=filename)
+plt.xlabel('wavelength')
+plt.ylabel('intensity')
+plt.title('Spectrum run ' + runname)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
