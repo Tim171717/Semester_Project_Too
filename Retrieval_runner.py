@@ -6,6 +6,7 @@ from fabric import Connection
 from collections import OrderedDict
 import pyautogui
 import time
+import shutil
 
 from helper_functions import *
 
@@ -19,7 +20,7 @@ mass_distros = [
     ['gaussian', 1, 0.3],
 ]
 m_truth = 1.0
-spectrum = ''
+spectrum = 'C:/Users/timlf/PycharmProjects/Semester_Project_Too/spectrumVH2O_M=10.txt'
 ### --------------------------------------------------------------------------------------------
 
 
@@ -29,8 +30,12 @@ local_dir = os.path.join(file_dir,'Retrieval_studies', runname)
 os.makedirs(local_dir,exist_ok=True)
 config_dir = os.path.join(local_dir,'configs')
 os.makedirs(config_dir,exist_ok=True)
+spectra_dir = os.path.join(local_dir,'spectra')
+os.makedirs(spectra_dir,exist_ok=True)
+shutil.copy(spectrum, f'{spectra_dir}/input_spectrum.txt')
 os.chdir(local_dir)
-remote_dir = f"/home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/{runname}"
+home_dir = f"/home/ipa/quanz/user_accounts/tfessler"
+remote_dir = f"{home_dir}/Retrieval_studies/{runname}"
 
 
 def represent_ordereddict(dumper, data):
@@ -38,12 +43,10 @@ def represent_ordereddict(dumper, data):
 
 yaml.add_representer(OrderedDict, represent_ordereddict)
 
-
+Retnames = []
 filenames = []
 
 for n, mdis in enumerate(mass_distros):
-    filename = f"config{n+1}_{mdis[0]}.txt"
-    filenames.append(filename)
     yaml_dict = make_yaml_dict(runname)
     if mdis[0] == 'known':
         yaml_dict['PHYSICAL PARAMETERS']['M_pl'] = OrderedDict({
@@ -86,12 +89,16 @@ for n, mdis in enumerate(mass_distros):
         print("Unrecognized prior type: ", mdis[0])
         continue
 
-    with open(f"{config_dir}/{filename[:-4]}.yaml", "w") as f:
+    filename = f"config{n + 1}_{mdis[0]}.yaml"
+    filenames.append(filename)
+
+    with open(f"{config_dir}/{filename}", "w") as f:
         yaml.dump(yaml_dict, f, default_flow_style=False)
 
+    c.run(f"mkdir -p {remote_dir}/results/Retrieval{n+1}_{mdis[0]}")
+    Retnames.append(f'Retrieval{n+1}_{mdis[0]}')
 
 c.run(f"mkdir -p {remote_dir}/configs")
-c.run(f"mkdir -p {remote_dir}/results")
 c.run(f"mkdir -p {remote_dir}/spectra")
 
 for file in os.listdir(config_dir):
@@ -99,11 +106,14 @@ for file in os.listdir(config_dir):
     if os.path.isfile(local_path):
         c.put(local_path, remote=f"{remote_dir}/configs/{file}")
 
+c.put(spectrum, remote=f"{remote_dir}/spectra/input_spectrum.txt")
 
+nproc = 32 // len(mass_distros)
 ### --------------------------------------------
-# for filename in filenames:
+# for filename, Retname in zip(filenames, Retnames):
 #     pyautogui.click(2000, 300)
-#     pyautogui.write(f"python /home/ipa/quanz/user_accounts/tfessler/software/pyRetLIFE/scripts/create_spectrum.py --config {remote_dir}/{filename[:-4]}.yaml")
+#     pyautogui.write(f"nohup nice -n 19 python {home_dir}/software/pyRetLIFE/scripts/run_plotting.py --config {remote_dir}/configs/{filename} --nproc {nproc} &>> {remote_dir}/results/{Retname}/output.txt &")
 #     pyautogui.press('enter')
-#     time.sleep(10)
+#     input("Press Enter to continue...")
+#     time.sleep(2)
 ### ----------------------------------------------
