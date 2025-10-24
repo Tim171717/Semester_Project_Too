@@ -47,7 +47,7 @@ Retnames = []
 filenames = []
 
 for n, mdis in enumerate(mass_distros):
-    yaml_dict = make_yaml_dict(runname)
+    yaml_dict = make_yaml_dict(runname, n+1, mdis[0])
     if mdis[0] == 'known':
         yaml_dict['PHYSICAL PARAMETERS']['M_pl'] = OrderedDict({
                 'truth': m_truth

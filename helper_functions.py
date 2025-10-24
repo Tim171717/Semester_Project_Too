@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 
-def make_yaml_dict(runname):
+def make_yaml_dict(runname, n, mdis):
     yaml_dict = OrderedDict({
         'GROUND TRUTH DATA': OrderedDict({
             'data_files': OrderedDict({
@@ -13,7 +13,7 @@ def make_yaml_dict(runname):
         }),
         'RUN SETTINGS': OrderedDict({
             'wavelength_range': [3.5, 19.0],
-            'output_folder': f'/home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/{runname}/results/',
+            'output_folder': f'/home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/{runname}/results/Retrieval{n}_{mdis}/',
             'include_scattering': OrderedDict({
                 'Rayleigh': False,
                 'thermal': False,
