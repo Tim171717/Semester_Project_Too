@@ -33,6 +33,8 @@ os.makedirs(config_dir,exist_ok=True)
 spectra_dir = os.path.join(local_dir,'spectra')
 os.makedirs(spectra_dir,exist_ok=True)
 shutil.copy(spectrum, f'{spectra_dir}/input_spectrum.txt')
+results_dir = os.path.join(local_dir,'results')
+os.makedirs(results_dir,exist_ok=True)
 os.chdir(local_dir)
 home_dir = f"/home/ipa/quanz/user_accounts/tfessler"
 remote_dir = f"{home_dir}/Retrieval_studies/{runname}"
@@ -110,10 +112,9 @@ c.put(spectrum, remote=f"{remote_dir}/spectra/input_spectrum.txt")
 
 nproc = 32 // len(mass_distros)
 ### --------------------------------------------
-# for filename, Retname in zip(filenames, Retnames):
-#     pyautogui.click(2000, 300)
-#     pyautogui.write(f"nohup nice -n 19 python {home_dir}/software/pyRetLIFE/scripts/run_plotting.py --config {remote_dir}/configs/{filename} --nproc {nproc} &>> {remote_dir}/results/{Retname}/output.txt &")
-#     pyautogui.press('enter')
-#     input("Press Enter to continue...")
-#     time.sleep(2)
+for filename, Retname in zip(filenames, Retnames):
+    pyautogui.click(2000, 300)
+    pyautogui.write(f"nohup nice -n 19 python {home_dir}/software/pyRetLIFE/scripts/run_plotting.py --config {remote_dir}/configs/{filename} --nproc {nproc} &>> {remote_dir}/results/{Retname}/output.txt &")
+    pyautogui.press('enter')
+    time.sleep(2)
 ### ----------------------------------------------
