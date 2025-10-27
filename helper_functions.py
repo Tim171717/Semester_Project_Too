@@ -15,6 +15,7 @@ def make_yaml_dict(
         runname,
         num,
         distribution_name,
+        specta_path='/home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/spectra/input_spectrum.txt',
         study_folder='/home/ipa/quanz/user_accounts/tfessler/Retrieval_studies'
 ):
     """
@@ -30,6 +31,9 @@ def make_yaml_dict(
 
         distribution_name :  str
             The distribution used in
+
+        specta_path :  str, optional
+            The path to the spectra used in the retrievals. Default set to
 
         study_folder :  str, optional
             The path to the home directory of the retrieval comparison. Default set to '/home/ipa/quanz/user_accounts/tfessler/Retrieval_studies'.
