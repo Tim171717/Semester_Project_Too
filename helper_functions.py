@@ -3,6 +3,8 @@ from pyretlife.retrieval_plotting.run_plotting import retrieval_plotting_object
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
+from argparse import ArgumentParser, Namespace
+import yaml
 
 from pyretlife.retrieval_plotting.posterior_plotting import (
     Generate_Parameter_Titles,
@@ -306,12 +308,12 @@ def load_data(
     self.calculate_posterior_spectrum(n_processes=4,reevaluate_spectra=False)
 
     self.deduce_bond_albedo(stellar_luminosity=1.0,
-                                            error_stellar_luminosity=0.01,
-                                            planet_star_separation=1.0,
-                                            error_planet_star_separation=0.01,
-                                            true_equilibrium_temperature = 255,
-                                            true_bond_albedo = 0.29,
-                                            reevaluate_bond_albedo=False)
+                            error_stellar_luminosity=0.01,
+                            planet_star_separation=1.0,
+                            error_planet_star_separation=0.01,
+                            true_equilibrium_temperature = 255,
+                            true_bond_albedo = 0.29,
+                            reevaluate_bond_albedo=False)
     self.deduce_abundance_profiles(reevaluate_abundance_profiles=False)
 
     self.deduce_gravity(true_gravity = 981)
@@ -423,7 +425,7 @@ def plot_retrievals(
     local_truths = []
     params = []
     for label in labels.keys():
-        results = retrieval_plotting_object(folders[label])
+        results = retrieval_plotting_object(folders[label], run_retrieval=True)
         datasets[label], ULUs[label], local_truths, params = results.load_data()
 
     n_params = len(params)
@@ -450,29 +452,30 @@ def plot_retrievals(
         ax = axs[i]
 
         for run_name, data in datasets.items():
-            if ULUs is not None and param in ULUs[run_name]:
-                h = np.histogram(data[param],density=True,bins=bins,range = (ULU_lim[0],0))
-                h2 = np.histogram(np.log10(1-10**(np.arange(-7,0,0.000001))),density=True,bins=h[1])
-                h = (h[0]/h2[0],h[1])
-                h = ax.hist(
-                    h[1][: -1],
-                    h[1],
-                    weights = sp.ndimage.filters.gaussian_filter(h[0], [ULU_lim[1]], mode='constant'),
-                    histtype='stepfilled',
-                    color=colors.get(run_name, 'gray'),
-                    density=True,
-                    label=labels.get(run_name, run_name)
-                )
-            else:
-                h = ax.hist(
-                    data[param],
-                    histtype='stepfilled',
-                    color=colors.get(run_name, 'gray'),
-                    alpha=0.6,
-                    density=True,
-                    bins=bins,
-                    label=labels.get(run_name, run_name)
-                )
+            if param in data.keys():
+                if ULUs is not None and param in ULUs[run_name]:
+                    h = np.histogram(data[param],density=True,bins=bins,range = (ULU_lim[0],0))
+                    h2 = np.histogram(np.log10(1-10**(np.arange(-7,0,0.000001))),density=True,bins=h[1])
+                    h = (h[0]/h2[0],h[1])
+                    h = ax.hist(
+                        h[1][: -1],
+                        h[1],
+                        weights = sp.ndimage.filters.gaussian_filter(h[0], [ULU_lim[1]], mode='constant'),
+                        histtype='stepfilled',
+                        color=colors.get(run_name, 'gray'),
+                        density=True,
+                        label=labels.get(run_name, run_name)
+                    )
+                else:
+                    h = ax.hist(
+                        data[param],
+                        histtype='stepfilled',
+                        color=colors.get(run_name, 'gray'),
+                        alpha=0.6,
+                        density=True,
+                        bins=bins,
+                        label=labels.get(run_name, run_name)
+                    )
 
         ax.set_title(param, fontsize=12)
         ax.set_ylabel("Prob. density")
@@ -505,3 +508,26 @@ def plot_retrievals(
         plt.savefig(savepath)
 
     plt.show()
+
+
+def get_cli_arguments() -> Namespace:
+    parser = ArgumentParser()
+    parser.add_argument(
+        "--config",
+        required=True,
+        help="Path to the configuration file.",
+    )
+    args = parser.parse_args()
+    return args
+
+if __name__ == "__main__":
+    args = get_cli_arguments()
+    with open(str(args.config), 'r') as file:
+        config_file = yaml.safe_load(file)
+
+    labels = config_file['labels']
+    colors = config_file['colors'] if 'colors' in config_file.keys() else None
+    folders = config_file['folders']
+    fig_title = config_file['title'] if 'title' in config_file.keys() else None
+
+    plot_retrievals(labels, folders, colors=colors, bins=60, fig_title=fig_title)
