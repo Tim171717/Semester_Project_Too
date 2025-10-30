@@ -426,7 +426,7 @@ def plot_retrievals(
     local_truths = []
     params = []
     for label in labels.keys():
-        results = retrieval_plotting_object(folders[label], run_retrieval=True)
+        results = retrieval_plotting_object(folders[label])
         datasets[label], ULUs[label], local_truths, params = results.load_data()
 
     n_params = len(params)
