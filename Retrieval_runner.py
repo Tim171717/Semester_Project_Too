@@ -35,8 +35,8 @@ if __name__ == "__main__":
     add_options = config_file['add_options'] if 'add_options' in config_file.keys() else False
     do_comparison = config_file['do_comparison'] if 'do_comparison' in config_file.keys() else True
 
-    subprocess.run(f"mkdir -p {directory}/configs")
-    subprocess.run(f"mkdir -p {directory}/spectra")
+	subprocess.run(["mkdir", "-p", f"{directory}/configs"])
+	subprocess.run(["mkdir", "-p", f"{directory}/spectra"])
 
     Retnames = []
     filenames = []
