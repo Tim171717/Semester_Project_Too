@@ -35,7 +35,7 @@ if __name__ == "__main__":
     spectrum = str(config_file['spectrum'])
     add_options = config_file['add_options'] if 'add_options' in config_file.keys() else False
     do_comparison = config_file['do_comparison'] if 'do_comparison' in config_file.keys() else True
-#
+
     os.makedirs(f"{directory}/configs", exist_ok=True)
     os.makedirs(f"{directory}/spectra", exist_ok=True)
 
