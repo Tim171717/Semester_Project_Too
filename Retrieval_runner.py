@@ -111,7 +111,6 @@ if __name__ == "__main__":
             	env=os.environ,
         	)
             process.wait()
-            process.terminate()
 
         print("\n" + "=" * 60)
         print(f"Retrieval '{filename}' DONE at {datetime.datetime.now():%Y-%m-%d %H:%M:%S}")
