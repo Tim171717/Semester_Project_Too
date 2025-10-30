@@ -90,7 +90,7 @@ if __name__ == "__main__":
         with open(f"{directory}/configs/{filename}", "w") as f:
             yaml.dump(yaml_dict, f, default_flow_style=False)
 
-        subprocess.run(f"mkdir -p {directory}/results/Retrieval{n+1}_{mdis[0]}")
+        subprocess.run(["mkdir", "-p", f"{directory}/results/Retrieval{n+1}_{mdis[0]}"])
         Retnames.append(f'Retrieval{n+1}_{mdis[0]}')
 
     for filename, Retname in zip(filenames, Retnames):
