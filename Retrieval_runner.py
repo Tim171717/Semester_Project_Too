@@ -95,27 +95,27 @@ if __name__ == "__main__":
         Retnames.append(f'Retrieval{n+1}_{mdis[0]}')
         
 
-	for filename, Retname in zip(filenames, Retnames):
-    	print("\n" + "=" * 60)
-    	print(f"Starting Retrieval '{filename}' at {datetime.datetime.now():%Y-%m-%d %H:%M:%S}")
-    	print("=" * 60 + "\n")
+    for filename, Retname in zip(filenames, Retnames):
+        print("\n" + "=" * 60)
+        print(f"Starting Retrieval '{filename}' at {datetime.datetime.now():%Y-%m-%d %H:%M:%S}")
+        print("=" * 60 + "\n")
 
-    	output_path = f"{directory}/results/{Retname}/output.txt"
+        output_path = f"{directory}/results/{Retname}/output.txt"
 
-    	with open(output_path, "a") as f:
-        	process = subprocess.Popen(
+        with open(output_path, "a") as f:
+            process = subprocess.Popen(
     			["nice", "-n", "19", "python", f"{pyretmap}/scripts/run_plotting.py",
                 "--config", f"{directory}/configs/{filename}", "--nproc", str(nproc)],
             	stdout=f,
             	stderr=f,
             	env=os.environ,
         	)
-        	process.wait()
+            process.wait()
             process.terminate()
 
-    	print("\n" + "=" * 60)
-    	print(f"Retrieval '{filename}' DONE at {datetime.datetime.now():%Y-%m-%d %H:%M:%S}")
-    	print("=" * 60 + "\n")
+        print("\n" + "=" * 60)
+        print(f"Retrieval '{filename}' DONE at {datetime.datetime.now():%Y-%m-%d %H:%M:%S}")
+        print("=" * 60 + "\n")
 
     if do_comparison:
         labels = {f'Ret{n+1}': str(r) for n, r in enumerate(config_file['labels'])}
