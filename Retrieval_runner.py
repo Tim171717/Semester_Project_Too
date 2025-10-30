@@ -31,7 +31,7 @@ if __name__ == "__main__":
     directory = home_directory + '/' + runname
     pyretmap = str(config_file['pyretlife_path'])
     mass_distros = config_file['mass_distros']
-    m_truth = str(config_file['truth'])
+    m_truth = config_file['truth']
     spectrum = str(config_file['spectrum'])
     add_options = config_file['add_options'] if 'add_options' in config_file.keys() else False
     do_comparison = config_file['do_comparison'] if 'do_comparison' in config_file.keys() else True
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     filenames = []
 
     for n, mdis in enumerate(mass_distros):
-        yaml_dict = make_yaml_dict(runname, n + 1, mdis[0], spectrum_path=spectrum)
+        yaml_dict = make_yaml_dict(runname, n+1, mdis[0], spectrum_path=spectrum)
         if mdis[0] == 'known':
             yaml_dict['PHYSICAL PARAMETERS']['M_pl'] = OrderedDict({
                 'truth': m_truth
