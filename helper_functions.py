@@ -530,6 +530,6 @@ if __name__ == "__main__":
     colors = config_file['colors'] if 'colors' in config_file.keys() else None
     folders = config_file['folders']
     fig_title = config_file['title'] if 'title' in config_file.keys() else None
-    savepath = config_file['savepath] if 'savepath' in config_file.keys() else None
+    savepath = config_file['savepath'] if 'savepath' in config_file.keys() else None
 
     plot_retrievals(labels, folders, colors=colors, bins=60, fig_title=fig_title, savepath=savepath)
