@@ -35,9 +35,9 @@ if __name__ == "__main__":
     spectrum = str(config_file['spectrum'])
     add_options = config_file['add_options'] if 'add_options' in config_file.keys() else False
     do_comparison = config_file['do_comparison'] if 'do_comparison' in config_file.keys() else True
-
-	subprocess.run(["mkdir", "-p", f"{directory}/configs"])
-	subprocess.run(["mkdir", "-p", f"{directory}/spectra"])
+#
+    os.makedirs(f"{directory}/configs", exist_ok=True)
+    os.makedirs(f"{directory}/spectra", exist_ok=True)
 
     Retnames = []
     filenames = []
@@ -91,22 +91,31 @@ if __name__ == "__main__":
         with open(f"{directory}/configs/{filename}", "w") as f:
             yaml.dump(yaml_dict, f, default_flow_style=False)
 
-        subprocess.run(["mkdir", "-p", f"{directory}/results/Retrieval{n+1}_{mdis[0]}"])
+        os.makedirs(f"{directory}/results/Retrieval{n+1}_{mdis[0]}", exist_ok=True)
         Retnames.append(f'Retrieval{n+1}_{mdis[0]}')
+        
 
-    for filename, Retname in zip(filenames, Retnames):
-        print("\n" + "=" * 60)
-        print(f"Starting with Retrieval {filename}' at {datetime.datetime.now():%Y-%m-%d %H:%M:%S}")
-        print("=" * 60 + "\n")
-        inputs = shlex.split(
-            f"nohup nice -n 19 python {pyretmap}/scripts/run_plotting.py " +
-            f"--config {directory}/configs/{filename} --nproc {nproc} &>> {directory}/results/{Retname}/output.txt &")
-        process = subprocess.Popen(inputs, env=os.environ)
-        process.wait()
-        process.terminate()
-        print("\n" + "=" * 60)
-        print(f"Retrieval {filename}' DONE at {datetime.datetime.now():%Y-%m-%d %H:%M:%S}")
-        print("=" * 60 + "\n")
+	for filename, Retname in zip(filenames, Retnames):
+    	print("\n" + "=" * 60)
+    	print(f"Starting Retrieval '{filename}' at {datetime.datetime.now():%Y-%m-%d %H:%M:%S}")
+    	print("=" * 60 + "\n")
+
+    	output_path = f"{directory}/results/{Retname}/output.txt"
+
+    	with open(output_path, "a") as f:
+        	process = subprocess.Popen(
+    			["nice", "-n", "19", "python", f"{pyretmap}/scripts/run_plotting.py",
+                "--config", f"{directory}/configs/{filename}", "--nproc", str(nproc)],
+            	stdout=f,
+            	stderr=f,
+            	env=os.environ,
+        	)
+        	process.wait()
+            process.terminate()
+
+    	print("\n" + "=" * 60)
+    	print(f"Retrieval '{filename}' DONE at {datetime.datetime.now():%Y-%m-%d %H:%M:%S}")
+    	print("=" * 60 + "\n")
 
     if do_comparison:
         labels = {f'Ret{n+1}': str(r) for n, r in enumerate(config_file['labels'])}
