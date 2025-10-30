@@ -29,6 +29,7 @@ if __name__ == "__main__":
     nproc = int(config_file['nproc'])
     home_directory = str(config_file["home_directory"])
     directory = home_directory + '/' + runname
+    pyretmap = str(config_file['pyretmap'])
     mass_distros = config_file['mass_distros']
     m_truth = str(config_file['truth'])
     spectrum = str(config_file['spectrum'])
@@ -98,7 +99,7 @@ if __name__ == "__main__":
         print(f"Starting with Retrieval {filename}' at {datetime.datetime.now():%Y-%m-%d %H:%M:%S}")
         print("=" * 60 + "\n")
         inputs = shlex.split(
-            f"nohup nice -n 19 python {home_directory}/software/pyRetLIFE/scripts/run_plotting.py " +
+            f"nohup nice -n 19 python {pyretmap}/scripts/run_plotting.py " +
             f"--config {directory}/configs/{filename} --nproc {nproc} &>> {directory}/results/{Retname}/output.txt &")
         process = subprocess.Popen(inputs, env=os.environ)
         process.wait()
