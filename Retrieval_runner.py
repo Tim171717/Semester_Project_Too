@@ -32,7 +32,7 @@ if __name__ == "__main__":
     mass_distros = config_file['mass_distros']
     m_truth = str(config_file['truth'])
     spectrum = str(config_file['spectrum'])
-    add_options = config_file['add_options']
+    add_options = config_file['add_options'] if 'add_options' in config_file.keys() else False
     do_comparison = config_file['do_comparison'] if 'do_comparison' in config_file.keys() else True
 
     subprocess.run(f"mkdir -p {directory}/configs")
