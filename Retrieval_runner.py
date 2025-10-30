@@ -37,13 +37,13 @@ if __name__ == "__main__":
     do_comparison = config_file['do_comparison'] if 'do_comparison' in config_file.keys() else True
 
     os.makedirs(f"{directory}/configs", exist_ok=True)
-    os.makedirs(f"{directory}/spectra", exist_ok=True)
+    # os.makedirs(f"{directory}/spectra", exist_ok=True)
 
     Retnames = []
     filenames = []
 
     for n, mdis in enumerate(mass_distros):
-        yaml_dict = make_yaml_dict(runname, n + 1, mdis[0])
+        yaml_dict = make_yaml_dict(runname, n + 1, mdis[0], spectrum_path=spectrum)
         if mdis[0] == 'known':
             yaml_dict['PHYSICAL PARAMETERS']['M_pl'] = OrderedDict({
                 'truth': m_truth

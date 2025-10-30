@@ -17,7 +17,7 @@ def make_yaml_dict(
         runname,
         num,
         distribution_name,
-        specta_path='/home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/spectra/input_spectrum.txt',
+        spectrum_path='/home/ipa/quanz/user_accounts/tfessler/Retrieval_Tutorial_pRT3/spectra/VH2O_test_spectrum.txt',
         study_folder='/home/ipa/quanz/user_accounts/tfessler/Retrieval_studies'
 ):
     """
@@ -34,8 +34,9 @@ def make_yaml_dict(
         distribution_name :  str
             The distribution used in
 
-        specta_path :  str, optional
-            The path to the spectra used in the retrievals. Default set to
+        spectrum_path :  str, optional
+            The path to the spectra used in the retrievals.
+            Default set to '/home/ipa/quanz/user_accounts/tfessler/Retrieval_Tutorial_pRT3/spectra/VH2O_test_spectrum.txt'.
 
         study_folder :  str, optional
             The path to the home directory of the retrieval comparison. Default set to '/home/ipa/quanz/user_accounts/tfessler/Retrieval_studies'.
@@ -44,7 +45,7 @@ def make_yaml_dict(
         'GROUND TRUTH DATA': OrderedDict({
             'data_files': OrderedDict({
                 'data': OrderedDict({
-                    'path': f'{study_folder}/{runname}/spectra/input_spectrum.txt',
+                    'path': spectrum_path,
                     'unit': 'micron, erg s-1 Hz-1 m-2'
                 })
             })
@@ -426,7 +427,7 @@ def plot_retrievals(
     local_truths = []
     params = []
     for label in labels.keys():
-        results = retrieval_plotting_object(folders[label])
+        results = retrieval_plotting_object(folders[label], run_retrieval=True)
         datasets[label], ULUs[label], local_truths, params = results.load_data()
 
     n_params = len(params)
