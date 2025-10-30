@@ -29,7 +29,7 @@ if __name__ == "__main__":
     nproc = int(config_file['nproc'])
     home_directory = str(config_file["home_directory"])
     directory = home_directory + '/' + runname
-    pyretmap = str(config_file['pyretmap'])
+    pyretmap = str(config_file['pyretlife_path'])
     mass_distros = config_file['mass_distros']
     m_truth = str(config_file['truth'])
     spectrum = str(config_file['spectrum'])
