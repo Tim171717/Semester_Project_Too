@@ -419,6 +419,7 @@ def plot_retrievals(
     ULU_lim : list, optional
         Limits for the ULU correction (lower bound and smoothing factor). Default is [-0.15, 0.75].
     """
+    retrieval_plotting_object.load_data = load_data
 
     datasets = {}
     ULUs = {}
@@ -521,7 +522,6 @@ def get_cli_arguments() -> Namespace:
     return args
 
 if __name__ == "__main__":
-    retrieval_plotting_object.load_data = load_data
     args = get_cli_arguments()
     with open(str(args.config), 'r') as file:
         config_file = yaml.safe_load(file)
