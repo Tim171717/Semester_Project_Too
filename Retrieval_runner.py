@@ -94,6 +94,9 @@ if __name__ == "__main__":
         Retnames.append(f'Retrieval{n+1}_{mdis[0]}')
 
     for filename, Retname in zip(filenames, Retnames):
+        print("\n" + "=" * 60)
+        print(f"Starting with Retrieval {filename}' at {datetime.datetime.now():%Y-%m-%d %H:%M:%S}")
+        print("=" * 60 + "\n")
         inputs = shlex.split(
             f"nohup nice -n 19 python {home_directory}/software/pyRetLIFE/scripts/run_plotting.py " +
             f"--config {directory}/configs/{filename} --nproc {nproc} &>> {directory}/results/{Retname}/output.txt &")
