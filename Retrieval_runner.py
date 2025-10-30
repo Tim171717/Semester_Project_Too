@@ -108,7 +108,7 @@ if __name__ == "__main__":
         print("=" * 60 + "\n")
 
     if do_comparison:
-        labels = {f'Ret{n+1}': str(r) for n, r in config_file['labels']}
+        labels = {f'Ret{n+1}': str(r) for n, r in enumerate(config_file['labels'])}
         folders = {f'Ret{n+1}': f'{directory}/results/{r}' for n, r in enumerate(Retnames)}
 
         plot_retrievals(labels, folders, bins=60, fig_title=runname, savepath=f'{directory}/results/Retrieval_comparison.pdf')
