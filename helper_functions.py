@@ -303,22 +303,52 @@ def load_data(
     custom_parameter_titles={} : dict, optional
         A dictionary mapping parameters to custom titles. Defaults to an empty dictionary.
     """
+    
+    ##################################################
+    recompute = False
+    self.calculate_posterior_spectrum(reevaluate_spectra=False)
+    if np.shape(self.retrieved_fluxes)[0] != np.shape(self.posteriors)[0]:
+        delattr(self, 'retrieved_fluxes')
+        self.calculate_posterior_spectrum(reevaluate_spectra=True)
+        recompute = True
+        
+    try:
+        self.calculate_posterior_pt_profile(n_processes=4,reevaluate_PT=recompute)
+            
+        self.deduce_bond_albedo(stellar_luminosity=1.0,
+                            	error_stellar_luminosity=0.01,
+                            	planet_star_separation=1.0,
+                        		error_planet_star_separation=0.01,
+                        		true_equilibrium_temperature = 255,
+                        		true_bond_albedo = 0.29,
+                        		reevaluate_bond_albedo=recompute)
+    	self.deduce_abundance_profiles(reevaluate_abundance_profiles=recompute)
+        
+        self.deduce_gravity(true_gravity = 981)
+    	self.deduce_surface_temperature(true_surface_temperature = 273)
+            
+    except Exception as e:
+    	print(f"Error correcting data for {self.results_directory}: {e}")
+    	return None, None, None, None
+            
+    
+    ##################################################
 
-    self.calculate_posterior_pt_profile(n_processes=4,reevaluate_PT=False)
+    #self.calculate_posterior_pt_profile(n_processes=4,reevaluate_PT=False)
 
-    self.calculate_posterior_spectrum(n_processes=4,reevaluate_spectra=False)
+    #self.calculate_posterior_spectrum(n_processes=4,reevaluate_spectra=False)
 
-    self.deduce_bond_albedo(stellar_luminosity=1.0,
-                            error_stellar_luminosity=0.01,
-                            planet_star_separation=1.0,
-                            error_planet_star_separation=0.01,
-                            true_equilibrium_temperature = 255,
-                            true_bond_albedo = 0.29,
-                            reevaluate_bond_albedo=False)
-    self.deduce_abundance_profiles(reevaluate_abundance_profiles=False)
+    #self.deduce_bond_albedo(stellar_luminosity=1.0,
+    #                        error_stellar_luminosity=0.01,
+    #                        planet_star_separation=1.0,
+    #                        error_planet_star_separation=0.01,
+    #                        true_equilibrium_temperature = 255,
+    #                        true_bond_albedo = 0.29,
+    #                        reevaluate_bond_albedo=False)
+    #self.deduce_abundance_profiles(reevaluate_abundance_profiles=False)
 
-    self.deduce_gravity(true_gravity = 981)
-    self.deduce_surface_temperature(true_surface_temperature = 273)
+    #self.deduce_gravity(true_gravity = 981)
+    #self.deduce_surface_temperature(true_surface_temperature = 273)
 
     parameters_plotted = []
     for parameter in self.parameters:
@@ -428,7 +458,9 @@ def plot_retrievals(
     params = []
     for label in labels.keys():
         results = retrieval_plotting_object(folders[label], run_retrieval=True)
-        datasets[label], ULUs[label], local_truths, params = results.load_data()
+        ds, ul, lt, pa = results.load_data()
+        if ds is not None:
+        	datasets[label], ULUs[label], local_truths, params = ds, ul, lt, pa
 
     n_params = len(params)
     n_cols = 4
