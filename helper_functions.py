@@ -5,6 +5,9 @@ import numpy as np
 import scipy as sp
 from argparse import ArgumentParser, Namespace
 import yaml
+import glob
+import shutil
+import os
 
 from pyretlife.retrieval_plotting.posterior_plotting import (
     Generate_Parameter_Titles,
@@ -238,6 +241,15 @@ def make_yaml_dict(
     return yaml_dict
 
 
+def copy_spectrum(directory):
+	matches = [f for f in glob.glob(os.path.join(directory, "input_*.txt"))
+    			if os.path.basename(f) != "input_spectrum.txt"]
+
+	if matches:
+    	source = matches[0]
+    	destination = os.path.join(directory, "input_spectrum.txt")
+    	shutil.copy(source, destination)
+
 
 def load_data(
         self,
@@ -311,6 +323,7 @@ def load_data(
         delattr(self, 'retrieved_fluxes')
         self.calculate_posterior_spectrum(reevaluate_spectra=True)
         recompute = True
+        copy_spectrum(self.results_directory)
         
     try:
         self.calculate_posterior_pt_profile(n_processes=4,reevaluate_PT=recompute)
