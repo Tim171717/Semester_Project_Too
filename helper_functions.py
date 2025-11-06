@@ -461,7 +461,11 @@ def plot_retrievals(
         ds, ul, lt, pa = results.load_data()
         if ds is not None:
         	datasets[label], ULUs[label], local_truths, params = ds, ul, lt, pa
-
+	
+    if not datasets:
+    	print("No datasets could be loaded.")
+    	return
+    
     n_params = len(params)
     n_cols = 4
     n_rows = int(np.ceil(n_params / n_cols))
