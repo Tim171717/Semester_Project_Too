@@ -242,13 +242,13 @@ def make_yaml_dict(
 
 
 def copy_spectrum(directory):
-	matches = [f for f in glob.glob(os.path.join(directory, "input_*.txt"))
-    			if os.path.basename(f) != "input_spectrum.txt"]
-
-	if matches:
-    	source = matches[0]
-    	destination = os.path.join(directory, "input_spectrum.txt")
-    	shutil.copy(source, destination)
+    matches = [
+        f for f in glob.glob(os.path.join(directory, "input_*.txt"))
+        if os.path.basename(f) != "input_spectrum.txt"]
+    if matches:
+        source = matches[0]
+        destination = os.path.join(directory, "input_spectrum.txt")
+        shutil.copy(source, destination)
 
 
 def load_data(
@@ -315,15 +315,12 @@ def load_data(
     custom_parameter_titles={} : dict, optional
         A dictionary mapping parameters to custom titles. Defaults to an empty dictionary.
     """
-    
-    ##################################################
     recompute = False
     self.calculate_posterior_spectrum(reevaluate_spectra=False)
     if np.shape(self.retrieved_fluxes)[0] != np.shape(self.posteriors)[0]:
         delattr(self, 'retrieved_fluxes')
         self.calculate_posterior_spectrum(reevaluate_spectra=True)
         recompute = True
-        copy_spectrum(self.results_directory)
         
     try:
         self.calculate_posterior_pt_profile(n_processes=4,reevaluate_PT=recompute)
@@ -335,33 +332,14 @@ def load_data(
                         		true_equilibrium_temperature = 255,
                         		true_bond_albedo = 0.29,
                         		reevaluate_bond_albedo=recompute)
-    	self.deduce_abundance_profiles(reevaluate_abundance_profiles=recompute)
+        self.deduce_abundance_profiles(reevaluate_abundance_profiles=recompute)
         
         self.deduce_gravity(true_gravity = 981)
-    	self.deduce_surface_temperature(true_surface_temperature = 273)
+        self.deduce_surface_temperature(true_surface_temperature = 273)
             
     except Exception as e:
-    	print(f"Error correcting data for {self.results_directory}: {e}")
-    	return None, None, None, None
-            
-    
-    ##################################################
-
-    #self.calculate_posterior_pt_profile(n_processes=4,reevaluate_PT=False)
-
-    #self.calculate_posterior_spectrum(n_processes=4,reevaluate_spectra=False)
-
-    #self.deduce_bond_albedo(stellar_luminosity=1.0,
-    #                        error_stellar_luminosity=0.01,
-    #                        planet_star_separation=1.0,
-    #                        error_planet_star_separation=0.01,
-    #                        true_equilibrium_temperature = 255,
-    #                        true_bond_albedo = 0.29,
-    #                        reevaluate_bond_albedo=False)
-    #self.deduce_abundance_profiles(reevaluate_abundance_profiles=False)
-
-    #self.deduce_gravity(true_gravity = 981)
-    #self.deduce_surface_temperature(true_surface_temperature = 273)
+        print(f"Error correcting data for {self.results_directory}: {e}")
+        return None, None, None, None
 
     parameters_plotted = []
     for parameter in self.parameters:
@@ -470,14 +448,14 @@ def plot_retrievals(
     local_truths = []
     params = []
     for label in labels.keys():
-        results = retrieval_plotting_object(folders[label], run_retrieval=True)
+        results = retrieval_plotting_object(folders[label])
         ds, ul, lt, pa = results.load_data()
         if ds is not None:
-        	datasets[label], ULUs[label], local_truths, params = ds, ul, lt, pa
+            datasets[label], ULUs[label], local_truths, params = ds, ul, lt, pa
 	
     if not datasets:
-    	print("No datasets could be loaded.")
-    	return
+        print("No datasets could be loaded.")
+        return
     
     n_params = len(params)
     n_cols = 4
@@ -492,7 +470,7 @@ def plot_retrievals(
 
     if colors is None:
         default_colors = [
-            "gray", "mediumpurple", "indianred", "goldenrod", "steelblue", "darkorange", "seagreen", "firebrick", "royalblue", "darkkhaki"
+            "mediumpurple", "indianred", "goldenrod", "steelblue", "darkorange", "seagreen", "firebrick", "royalblue", "darkkhaki"
         ]
         colors = {label: default_colors[i % len(default_colors)] for i, label in enumerate(datasets.keys())}
 
