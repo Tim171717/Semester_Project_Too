@@ -1,0 +1,17 @@
+title: LIFE Retrieval Comparison
+labels:
+  R1: Perfect Mp
+  R2: Unknown Mp
+  R3: 2d prior
+  R4: Gaussian prior (10%)
+  R5: Log-Gaussian prior (0.2)
+  R6: Log-Gaussian prior (0.5)
+savepath: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/Comp_Ret_comparison.pdf
+
+folders:
+  R1: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/Earthlike2/results/Retrieval1_known/
+  R2: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/Earthlike2/results/Retrieval2_uniform/
+  R3: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/2dtest/results/
+  R4: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/Earthlike2/results/Retrieval3_gaussian/
+  R5: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/Earthlike2/results/Retrieval4_log-gaussian/
+  R6: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/Earthlike2/results/Retrieval5_log-gaussian/
