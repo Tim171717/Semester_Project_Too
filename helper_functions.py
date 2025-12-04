@@ -539,6 +539,139 @@ def plot_retrievals(
     plt.show()
 
 
+def plot_comparison_intervals(
+        labels,
+        folders,
+        colors=None,
+        params_to_plot=None,
+        figsize=(16, 24),
+        quantiles=(0.16, 0.5, 0.84),
+        truth_band_width=0.1,
+        fig_title=None,
+        savepath=None,
+):
+    """
+    Create stacked horizontal-interval comparison plots for multiple retrievals.
+
+    Parameters
+    ----------
+    labels : dict
+        Dictionary mapping run names to legend labels.
+
+    folders : dict
+        Dictionary mapping run names to folder with the run data.
+
+    colors : dict, optional
+        Dictionary mapping run names to histogram colors. Default is a generic color palette with 10 unique options.
+
+    params_to_plot : list, optional
+        List of parameter names to plot. Default is all.
+
+    figsize : tuple, optional
+        Size of figure in inches. Default is (16, 24).
+
+    quantiles : tuple, optional
+        q value for which np.quantile computes the q-th percentile of the data along the specified axis.
+
+    truth_band_width : float, optional
+        Width of band to use for comparison. Default is 10% of the truth value.
+
+    fig_title : str, optional
+        Title for the whole figure.
+
+    savepath : str, optional
+        Saves the figure at the given filepath. When no path is provided the figure is not saved.
+    """
+
+    retrieval_plotting_object.load_data = load_data
+
+    datasets = {}
+    ULUs = {}
+    local_truths = []
+    params = []
+    for label in labels.keys():
+        results = retrieval_plotting_object(folders[label])
+        ds, ul, lt, pa = results.load_data()
+        if ds is not None:
+            datasets[label], ULUs[label], local_truths, params = ds, ul, lt, pa
+
+    n_params = len(params)
+
+    # Colors
+    if colors is None:
+        default = ["indianred", "purple", "seagreen", "steelblue", "darkorange"]
+        colors = {lab: default[i % len(default)] for i, lab in enumerate(labels.keys())}
+
+    print(colors)
+
+    # Figure with 2 columns
+    n_cols = 2
+    n_rows = int(np.ceil(n_params / n_cols))
+    fig, axs = plt.subplots(
+        n_rows, n_cols,
+        figsize=figsize,
+        constrained_layout=False
+    )
+    axs = axs.flatten()
+
+    for i, param in enumerate(params):
+        if params_to_plot is not None and param not in params_to_plot:
+            continue
+
+        ax = axs[i]
+
+        # Shaded truth band
+        t = local_truths[param]
+        ax.axvspan(t * (1 - truth_band_width), t * (1 + truth_band_width),
+                   color="lightgray", alpha=0.6, zorder=0)
+
+        # Horizontal category positions
+        y_positions = np.arange(len(labels))
+
+        for j, run in enumerate(labels.keys()):
+
+            if param not in datasets[run]:
+                continue
+
+            samples = np.asarray(datasets[run][param])
+            q_low, q_med, q_high = np.quantile(samples, quantiles)
+
+            # Main interval line
+            ax.hlines(
+                y_positions[j],
+                q_low, q_high,
+                color=colors[run],
+                linewidth=2
+            )
+
+            # Arrows at interval edges
+            ax.plot(q_low, y_positions[j], marker='<', color=colors[run], ms=8)
+            ax.plot(q_high, y_positions[j], marker='>', color=colors[run], ms=8)
+
+            # Median marker
+            ax.plot(q_med, y_positions[j], marker='o', color=colors[run], ms=6)
+
+        # Y-axis labeling
+        ax.set_yticks(y_positions)
+        ax.set_yticklabels(labels)
+        ax.set_xlabel(param, weight="bold")
+        ax.grid(False)
+
+    # Remove unused subplots
+    for k in range(len(params), len(axs)):
+        axs[k].axis("off")
+
+    fig.subplots_adjust(hspace=0.4, wspace=0.25)
+
+    if fig_title:
+        fig.suptitle(fig_title, fontsize=16, weight='bold', y=0.9)
+
+    if savepath is not None:
+        plt.savefig(savepath, dpi=200, bbox_inches="tight")
+
+    plt.show()
+
+
 def get_cli_arguments() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument(
@@ -559,5 +692,9 @@ if __name__ == "__main__":
     folders = config_file['folders']
     fig_title = str(config_file['title']) if 'title' in config_file.keys() else None
     savepath = str(config_file['savepath']) if 'savepath' in config_file.keys() else None
+    new_plot = config_file['new_plot'] if 'new_plot' in config_file.keys() else None
 
-    plot_retrievals(labels, folders, colors=colors, bins=60, fig_title=fig_title, savepath=savepath)
+    if new_plot:
+        plot_comparison_intervals(labels, folders, colors=colors, fig_title=fig_title, savepath=savepath)
+    else:
+        plot_retrievals(labels, folders, colors=colors, bins=60, fig_title=fig_title, savepath=savepath)
