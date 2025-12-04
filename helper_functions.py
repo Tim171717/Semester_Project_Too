@@ -651,7 +651,7 @@ def plot_comparison_intervals(
 
         # Y-axis labeling
         ax.set_yticks(y_positions)
-        ax.set_yticklabels(labels)
+        ax.set_yticklabels(labels.values())
         ax.set_xlabel(param, weight="bold")
         ax.grid(False)
 
