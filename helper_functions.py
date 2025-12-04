@@ -602,8 +602,6 @@ def plot_comparison_intervals(
         default = ["indianred", "purple", "seagreen", "steelblue", "darkorange"]
         colors = {lab: default[i % len(default)] for i, lab in enumerate(labels.keys())}
 
-    print(colors)
-
     # Figure with 2 columns
     n_cols = 2
     n_rows = int(np.ceil(n_params / n_cols))
