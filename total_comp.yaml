@@ -6,8 +6,8 @@ labels:
   R4: Gaussian prior (10%)
   R5: Log-Gaussian prior (0.2)
   R6: Log-Gaussian prior (0.5)
-savepath: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/Comp_Ret_comparison.pdf
-
+savepath: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/Comp_Ret_comparison_new.pdf
+new_plot: true
 folders:
   R1: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/Earthlike2/results/Retrieval1_known/
   R2: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/Earthlike2/results/Retrieval2_uniform/
