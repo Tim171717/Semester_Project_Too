@@ -129,7 +129,7 @@ def make_yaml_dict(
                         'log_upper': 2
                     })
                 }),
-                'truth': 10
+                'truth': 1.02329299228
             }),
             'd_syst': OrderedDict({
                 'truth': 10.0
