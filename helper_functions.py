@@ -544,9 +544,10 @@ def plot_comparison_intervals(
         folders,
         colors=None,
         params_to_plot=None,
-        figsize=(16, 24),
+        figsize=(16, 16),
+        n_cols=4,
         quantiles=(0.16, 0.5, 0.84),
-        truth_band_width=0.1,
+        truth_band_width=0,
         fig_title=None,
         savepath=None,
 ):
@@ -568,13 +569,16 @@ def plot_comparison_intervals(
         List of parameter names to plot. Default is all.
 
     figsize : tuple, optional
-        Size of figure in inches. Default is (16, 24).
+        Size of figure in inches. Default is (16, 16).
+
+    n_cols : int, optional
+        Number of subplots in each row. Default is 4.
 
     quantiles : tuple, optional
         q value for which np.quantile computes the q-th percentile of the data along the specified axis.
 
     truth_band_width : float, optional
-        Width of band to use for comparison. Default is 10% of the truth value.
+        Width of band to use for comparison. Default is no band.
 
     fig_title : str, optional
         Title for the whole figure.
@@ -597,13 +601,10 @@ def plot_comparison_intervals(
 
     n_params = len(params)
 
-    # Colors
     if colors is None:
         default = ["indianred", "purple", "seagreen", "steelblue", "darkorange"]
         colors = {lab: default[i % len(default)] for i, lab in enumerate(labels.keys())}
 
-    # Figure with 2 columns
-    n_cols = 2
     n_rows = int(np.ceil(n_params / n_cols))
     fig, axs = plt.subplots(
         n_rows, n_cols,
@@ -618,12 +619,12 @@ def plot_comparison_intervals(
 
         ax = axs[i]
 
-        # Shaded truth band
         t = local_truths[param]
         ax.axvspan(t * (1 - truth_band_width), t * (1 + truth_band_width),
-                   color="lightgray", alpha=0.6, zorder=0)
+                   color="lightgray", alpha=0.5, zorder=0)
 
-        # Horizontal category positions
+        ax.axvline(x=t, color='gray', linestyle='--', linewidth=1.5, zorder=0)
+
         y_positions = np.arange(len(labels))
 
         for j, run in enumerate(labels.keys()):
@@ -634,7 +635,6 @@ def plot_comparison_intervals(
             samples = np.asarray(datasets[run][param])
             q_low, q_med, q_high = np.quantile(samples, quantiles)
 
-            # Main interval line
             ax.hlines(
                 y_positions[j],
                 q_low, q_high,
@@ -642,27 +642,29 @@ def plot_comparison_intervals(
                 linewidth=2
             )
 
-            # Arrows at interval edges
-            ax.plot(q_low, y_positions[j], marker='<', color=colors[run], ms=8)
-            ax.plot(q_high, y_positions[j], marker='>', color=colors[run], ms=8)
+            ax.plot(q_low,  y_positions[j], marker='|', color=colors[run], ms=8)
+            ax.plot(q_high, y_positions[j], marker='|', color=colors[run], ms=8)
 
-            # Median marker
-            ax.plot(q_med, y_positions[j], marker='o', color=colors[run], ms=6)
+            ax.plot(q_med,  y_positions[j], marker='o', color=colors[run], ms=6)
 
-        # Y-axis labeling
-        ax.set_yticks(y_positions)
-        ax.set_yticklabels(labels.values())
-        ax.set_xlabel(param, weight="bold")
+        if i % n_cols == 0:
+            ax.set_yticks(y_positions)
+            ax.set_yticklabels(labels.values(), fontsize=11)
+        else:
+            ax.set_yticklabels([])
+            ax.set_yticks([])
+        ax.set_ylim(-0.25, len(labels) - 0.75)
+        ax.invert_yaxis()
+        ax.set_title(param, fontsize=12, weight="bold", pad=3.5)
         ax.grid(False)
 
-    # Remove unused subplots
     for k in range(len(params), len(axs)):
         axs[k].axis("off")
 
-    fig.subplots_adjust(hspace=0.4, wspace=0.25)
-
     if fig_title:
-        fig.suptitle(fig_title, fontsize=16, weight='bold', y=0.9)
+        fig.suptitle(fig_title, fontsize=20, weight='bold', y=0.92)
+
+    fig.subplots_adjust(hspace=0.3, wspace=0.01)
 
     if savepath is not None:
         plt.savefig(savepath, dpi=200, bbox_inches="tight")
