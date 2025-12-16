@@ -315,16 +315,19 @@ def load_data(
     custom_parameter_titles={} : dict, optional
         A dictionary mapping parameters to custom titles. Defaults to an empty dictionary.
     """
+
     recompute = False
     self.calculate_posterior_spectrum(reevaluate_spectra=False)
     if np.shape(self.retrieved_fluxes)[0] != np.shape(self.posteriors)[0]:
+        print('reevaluating spectrum due to dimension error.')
         delattr(self, 'retrieved_fluxes')
         self.calculate_posterior_spectrum(reevaluate_spectra=True)
         recompute = True
-        
+        # copy_spectrum(self.results_directory)
+
     try:
         self.calculate_posterior_pt_profile(n_processes=4,reevaluate_PT=recompute)
-            
+
         self.deduce_bond_albedo(stellar_luminosity=1.0,
                             	error_stellar_luminosity=0.01,
                             	planet_star_separation=1.0,
@@ -333,13 +336,14 @@ def load_data(
                         		true_bond_albedo = 0.29,
                         		reevaluate_bond_albedo=recompute)
         self.deduce_abundance_profiles(reevaluate_abundance_profiles=recompute)
-        
+
         self.deduce_gravity(true_gravity = 981)
         self.deduce_surface_temperature(true_surface_temperature = 273)
-            
+
     except Exception as e:
         print(f"Error correcting data for {self.results_directory}: {e}")
         return None, None, None, None
+
 
     parameters_plotted = []
     for parameter in self.parameters:
@@ -386,20 +390,18 @@ def load_data(
         local_titles[parameter] = local_titles[parameter][:-1]+unit+'$'
 
     for parameter in parameters_plotted:
-        local_post[parameter]   = self.units.truth_unit_conversion(parameter,retrieval_unit[parameter],local_units[parameter],local_post[parameter].to_numpy(),printing=False)
+        local_post[parameter] = self.units.truth_unit_conversion(parameter,retrieval_unit[parameter],local_units[parameter],local_post[parameter].to_numpy(),printing=False)
         local_truths[parameter] = self.units.truth_unit_conversion(parameter,retrieval_unit[parameter],local_units[parameter],local_truths[parameter],printing=False)
 
     local_post, local_truths, local_titles = Scale_Posteriors(self,local_post, local_truths, local_titles, parameters_plotted,
                                                               log_pressures=log_pressures, log_mass=log_mass,
                                                               log_abundances=log_abundances, log_particle_radii=log_particle_radii)
 
-    ULU = [parameter for parameter in parameters_plotted if self.parameters[parameter]['prior']['kind'] == 'upper-log-uniform']
-
     dataset = {}
     for param in parameters_plotted:
         dataset[param] = local_post[param]
 
-    return dataset, ULU, local_truths, parameters_plotted
+    return dataset, local_truths, parameters_plotted
 
 
 def plot_retrievals(
@@ -409,8 +411,7 @@ def plot_retrievals(
         params_to_plot=None,
         bins=50,
         fig_title=None,
-        savepath=None,
-        ULU_lim=[-0.15,0.75]
+        savepath='retrieval_comparison.pdf',
 ):
     """
     Plot the histograms of the fitted parameters for a series of retrievals.
@@ -436,27 +437,22 @@ def plot_retrievals(
         Title for the whole figure.
 
     savepath : str, optional
-        Saves the figure at the given filepath. When no path is provided the figure is not saved.
-
-    ULU_lim : list, optional
-        Limits for the ULU correction (lower bound and smoothing factor). Default is [-0.15, 0.75].
+        name of the output path. Default is 'retrieval_comparison.pdf'.
     """
-    retrieval_plotting_object.load_data = load_data
 
     datasets = {}
-    ULUs = {}
     local_truths = []
     params = []
     for label in labels.keys():
-        results = retrieval_plotting_object(folders[label])
-        ds, ul, lt, pa = results.load_data()
+        results = retrieval_plotting_object(folders[label], run_retrieval=False)
+        ds, lt, pa = results.load_data()
         if ds is not None:
-            datasets[label], ULUs[label], local_truths, params = ds, ul, lt, pa
-	
+            datasets[label], local_truths, params = ds, lt, pa
+
     if not datasets:
         print("No datasets could be loaded.")
         return
-    
+
     n_params = len(params)
     n_cols = 4
     n_rows = int(np.ceil(n_params / n_cols))
@@ -482,29 +478,15 @@ def plot_retrievals(
 
         for run_name, data in datasets.items():
             if param in data.keys():
-                if ULUs is not None and param in ULUs[run_name]:
-                    h = np.histogram(data[param],density=True,bins=bins,range = (ULU_lim[0],0))
-                    h2 = np.histogram(np.log10(1-10**(np.arange(-7,0,0.000001))),density=True,bins=h[1])
-                    h = (h[0]/h2[0],h[1])
-                    h = ax.hist(
-                        h[1][: -1],
-                        h[1],
-                        weights = sp.ndimage.filters.gaussian_filter(h[0], [ULU_lim[1]], mode='constant'),
-                        histtype='stepfilled',
-                        color=colors.get(run_name, 'gray'),
-                        density=True,
-                        label=labels.get(run_name, run_name)
-                    )
-                else:
-                    h = ax.hist(
-                        data[param],
-                        histtype='stepfilled',
-                        color=colors.get(run_name, 'gray'),
-                        alpha=0.6,
-                        density=True,
-                        bins=bins,
-                        label=labels.get(run_name, run_name)
-                    )
+                h = ax.hist(
+                    data[param],
+                    histtype='stepfilled',
+                    color=colors.get(run_name, 'gray'),
+                    alpha=0.6,
+                    density=True,
+                    bins=bins,
+                    label=labels.get(run_name, run_name)
+                )
 
         ax.set_title(param, fontsize=12)
         ax.set_ylabel("Prob. density")
@@ -590,14 +572,13 @@ def plot_comparison_intervals(
     retrieval_plotting_object.load_data = load_data
 
     datasets = {}
-    ULUs = {}
     local_truths = []
     params = []
     for label in labels.keys():
         results = retrieval_plotting_object(folders[label])
-        ds, ul, lt, pa = results.load_data()
+        ds, lt, pa = results.load_data()
         if ds is not None:
-            datasets[label], ULUs[label], local_truths, params = ds, ul, lt, pa
+            datasets[label], local_truths, params = ds, ul, lt, pa
 
     n_params = len(params)
 
@@ -693,8 +674,9 @@ if __name__ == "__main__":
     fig_title = str(config_file['title']) if 'title' in config_file.keys() else None
     savepath = str(config_file['savepath']) if 'savepath' in config_file.keys() else None
     new_plot = config_file['new_plot'] if 'new_plot' in config_file.keys() else None
+    ncols = config_file['ncols'] if 'ncols' in config_file.keys() else None
 
     if new_plot:
-        plot_comparison_intervals(labels, folders, colors=colors, fig_title=fig_title, savepath=savepath)
+        plot_comparison_intervals(labels, folders, colors=colors, fig_title=fig_title, savepath=savepath, n_cols=ncols)
     else:
         plot_retrievals(labels, folders, colors=colors, bins=60, fig_title=fig_title, savepath=savepath)
