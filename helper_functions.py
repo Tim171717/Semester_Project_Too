@@ -578,7 +578,7 @@ def plot_comparison_intervals(
         results = retrieval_plotting_object(folders[label])
         ds, lt, pa = results.load_data()
         if ds is not None:
-            datasets[label], local_truths, params = ds, ul, lt, pa
+            datasets[label], local_truths, params = ds, lt, pa
 
     n_params = len(params)
 
