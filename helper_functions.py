@@ -674,7 +674,7 @@ if __name__ == "__main__":
     fig_title = str(config_file['title']) if 'title' in config_file.keys() else None
     savepath = str(config_file['savepath']) if 'savepath' in config_file.keys() else None
     new_plot = config_file['new_plot'] if 'new_plot' in config_file.keys() else None
-    ncols = config_file['ncols'] if 'ncols' in config_file.keys() else None
+    ncols = config_file['ncols'] if 'ncols' in config_file.keys() else 4
 
     if new_plot:
         plot_comparison_intervals(labels, folders, colors=colors, fig_title=fig_title, savepath=savepath, n_cols=ncols)
