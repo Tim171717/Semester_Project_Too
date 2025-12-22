@@ -439,7 +439,8 @@ def plot_retrievals(
     savepath : str, optional
         name of the output path. Default is 'retrieval_comparison.pdf'.
     """
-
+    retrieval_plotting_object.load_data = load_data
+    
     datasets = {}
     local_truths = []
     params = []
