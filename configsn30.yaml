@@ -1,0 +1,13 @@
+runname: sn30
+nproc: 32
+home_directory: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/
+pyretlife_path: /home/ipa/quanz/user_accounts/tfessler/software/pyRetLIFE/
+mass_distros:
+  - ['known']
+  - ['uniform', 0, 10]
+truth: 1.0
+spectrum: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/sn50/spectra/VH2O_sn30_noise.txt
+do_comparison: true
+labels:
+  - 'known prior'
+  - 'uniform prior'

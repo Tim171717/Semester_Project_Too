@@ -1,9 +1,0 @@
-title: LIFE Retrieval Comparison - sn = 50
-labels:
-  R1: Perfect Mp
-  R2: Unknown Mp
-savepath: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/sn50/Comp_P10.pdf
-new_plot: true
-folders:
-  R1: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/sn50/results/Retrieval1_known/
-  R2: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/sn50/results/Retrieval2_uniform/
