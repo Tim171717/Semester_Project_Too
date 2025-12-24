@@ -6,7 +6,7 @@ mass_distros:
   - ['known']
   - ['uniform', 0, 10]
 truth: 1.0
-spectrum: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/sn50/spectra/VH2O_sn30_noise.txt
+spectrum: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/sn30/spectra/VH2O_sn30_noise.txt
 do_comparison: true
 labels:
   - 'known prior'
