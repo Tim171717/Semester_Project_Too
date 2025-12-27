@@ -584,7 +584,7 @@ def plot_comparison_intervals(
     n_params = len(params)
 
     if colors is None:
-        default = ["indianred", "purple", "seagreen", "steelblue", "darkorange"]
+        default = ['firebrick', 'royalblue', 'goldenrod','forestgreen', 'darkviolet',  'darkorange']
         colors = {lab: default[i % len(default)] for i, lab in enumerate(labels.keys())}
 
     n_rows = int(np.ceil(n_params / n_cols))
