@@ -81,6 +81,17 @@ if __name__ == "__main__":
                 }),
                 'truth': m_truth
             })
+        elif mdis[0] == '2d-uniform':
+            yaml_dict['PHYSICAL PARAMETERS']['M_pl'] = OrderedDict({
+                'prior': OrderedDict({
+                    'kind': '2d-uniform',
+                    'prior_specs': OrderedDict({
+                        'log_mean': mdis[1],
+                        'log_sigma': mdis[2]
+                    })
+                }),
+                'truth': m_truth
+            })
         else:
             print("Unrecognized prior type: ", mdis[0])
             continue
