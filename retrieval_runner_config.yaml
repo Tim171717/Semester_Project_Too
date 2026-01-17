@@ -1,0 +1,19 @@
+runname: Earthlike2
+nproc: 32
+home_directory: /home/ipa/quanz/user_accounts/tfessler/Retrieval_studies/
+pyretlife_path: /home/ipa/quanz/user_accounts/tfessler/software/pyRetLIFE/
+mass_distros:
+  - ['known']
+  - ['uniform', 0, 10]
+  - ['gaussian', 1, 0.1]
+  - ['log-gaussian', 0, 0.2]
+  - ['log-gaussian', 0, 0.5]
+truth: 1.0
+spectrum: /home/ipa/quanz/user_accounts/tfessler/Retrieval_Tutorial_pRT3/spectra/VH2O_test_spectrum.txt
+do_comparison: true
+labels:
+  - 'known prior'
+  - 'uniform prior'
+  - 'gaussian prior (10%)'
+  - 'log-gaussian prior (0.2)'
+  - 'log-gaussian prior (0.5)'

@@ -1,0 +1,121 @@
+Subject: [PATCH] Changes for the 2D prior
+---
+Index: pyretlife/retrieval/run.py
+===================================================================
+diff --git a/pyretlife/retrieval/run.py b/pyretlife/retrieval/run.py
+--- a/pyretlife/retrieval/run.py	(revision b4349dbe5666bcfb03ab608683c2e798e7da7df1)
++++ b/pyretlife/retrieval/run.py	(date 1763394897416)
+@@ -291,10 +291,30 @@
+ 
+     def unity_cube_to_prior_space(self, cube):
+         cube_copy = cube.copy()
++        Misin = False
++        R_pl = None
++        idx_save = None
++
+         for par in self.parameters.keys():
+-            prior = self.parameters[par]["prior"]
+             idx = list(self.parameters.keys()).index(par)
++            if par == "M_pl":
++                Misin = True
++                idx_save = idx
++                continue
++            prior = self.parameters[par]["prior"]
+             cube_copy[idx] = prior["function"](cube_copy[idx], prior["prior_specs"])
++            if par == "R_pl":
++                R_pl = cube_copy[idx]
++
++        if Misin:
++            prior = self.parameters['M_pl']["prior"]
++            if prior['kind'] == '2d-uniform':
++                if R_pl is None:
++                    R_pl = self.knowns['R_pl']['input_truth']
++                cube_copy[idx_save] = prior["function"](cube_copy[idx_save], R_pl)
++            else:
++                cube_copy[idx_save] = prior["function"](cube_copy[idx_save], prior["prior_specs"])
++
+         return cube_copy
+ 
+     def assign_cube_to_parameters(self, cube):
+Index: pyretlife/retrieval/priors.py
+===================================================================
+diff --git a/pyretlife/retrieval/priors.py b/pyretlife/retrieval/priors.py
+--- a/pyretlife/retrieval/priors.py	(revision b4349dbe5666bcfb03ab608683c2e798e7da7df1)
++++ b/pyretlife/retrieval/priors.py	(date 1763397154356)
+@@ -17,7 +17,17 @@
+ from pathlib import Path
+ from numpy import ndarray
+ 
+-
++# -----------------------------------------------------------------------------
++# defining the lower and upper bounds for the mass-radius relation
++# -----------------------------------------------------------------------------
++from scipy.interpolate import PchipInterpolator
++R_earth = 637810000.0
++M_earth = 5.972167867791379e+27
++masses = np.array([0.125,0.25,0.5,1.0,2.0,4.0,8.0,16.0,32.0])
++R100Fe =  np.array([0.445,0.55,0.676,0.823,0.99,1.176,1.38,1.59,1.82])
++R100H2O = np.array([0.776,0.952,1.163,1.41,1.71,2.05,2.45,2.9,3.36])
++lowerf = PchipInterpolator(R100Fe, masses)
++upperf = PchipInterpolator(R100H2O, masses)
+ # -----------------------------------------------------------------------------
+ # DEFINITIONS
+ # -----------------------------------------------------------------------------
+@@ -46,25 +56,19 @@
+         elif prior_kind == "log-gaussian":
+             dictionary[parameter]["prior"]["function"] = log_gaussian_prior
+         elif prior_kind == "fourth-uniform":
+-            dictionary[parameter]["prior"][
+-                "function"
+-            ] = fourth_power_uniform_prior
++            dictionary[parameter]["prior"]["function"] = fourth_power_uniform_prior
+         elif prior_kind == "third-uniform":
+-            dictionary[parameter]["prior"][
+-                "function"
+-            ] = third_power_uniform_prior
++            dictionary[parameter]["prior"]["function"] = third_power_uniform_prior
+         elif prior_kind == "second-uniform":
+-            dictionary[parameter]["prior"][
+-                "function"
+-            ] = second_power_uniform_prior
+-        elif prior_kind == "custom":
+-            dictionary[parameter]["prior"]["function"] = custom_prior
+-
+-            dictionary[parameter]["prior"]["prior_specs"][
+-                "prior_data"
+-            ] = read_custom_prior(
+-                dictionary[parameter]["prior"]["prior_specs"]["prior_path"]
+-            )
++            dictionary[parameter]["prior"]["function"] = second_power_uniform_prior
++        elif prior_kind == "2d-uniform":
++            dictionary[parameter]["prior"]["function"] = twod_uniform_prior
++        # elif prior_kind == "custom":
++        #     dictionary[parameter]["prior"]["function"] = custom_prior
++        #
++        #     dictionary[parameter]["prior"]["prior_specs"]["prior_data"] = read_custom_prior(
++        #         dictionary[parameter]["prior"]["prior_specs"]["prior_path"]
++        #     )
+         else:
+             raise ValueError(
+                 f"{parameter} does not have a valid prior. Please! choose a valid prior! "
+@@ -253,3 +257,19 @@
+     # TODO: Add functionality for invalid priors
+ 
+     raise ValueError("The prior provided for " + str(par) + "is invalid.")
++
++
++def twod_uniform_prior(r: float, R_pl: int) -> float:
++    """
++    Scales a random number generated in a uniform prior between 0 and 1 to the respective value corresponding to a
++    uniform prior ranged between the allowed mass values allowed by the current radius assigned prior.
++    This function is only used for M_pl. Formula taken from Zeng et al. (2016) doi.org/10.1117/1.JATIS.5.2.024009.
++
++    A random number generated from a uniform prior between [x1, x2].
++    :param r: A random float generated from the uniform prior between [0, 1].
++    :param R_pl: The radius of the Planet in Earth radii.
++    :return: A random number generated from a uniform prior between [x1, x2].
++    """
++    x1 = lowerf(R_pl/R_earth)
++    x2 = upperf(R_pl/R_earth)
++    return (x1 + r * (x2 - x1)) * M_earth
+\ No newline at end of file

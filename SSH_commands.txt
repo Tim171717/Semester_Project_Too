@@ -1,0 +1,19 @@
+Dl2oP1AjOjO6
+
+source myenv/bin/activate
+
+python /home/tfessler/software/pyRetLIFE/scripts/run_plotting.py --config /home/tfessler/Retrieval_Tutorial_pRT3/config/CH2O_CF_retrieval.yaml --nproc 32 --sampler multinest
+
+nohup nice -n 19 python /home/ipa/quanz/user_accounts/tfessler/software/pyRetLIFE/scripts/run_plotting.py --config /home/ipa/quanz/user_accounts/tfessler/config_files/ --nproc 32 &>> /home/ipa/quanz/user_accounts/tfessler/try3/output_text.txt &
+
+nohup nice -n 19 python ~/software/pyRetLIFE/scripts/run_plotting.py --config ~/config_files/VH2O_CL_retrieval.yaml --nproc 32 &>> ~/try3/output_text.txt &
+
+python ~/software/pyRetLIFE/scripts/create_spectrum.py --config ~/config_files/run_M/spectrumVH2O_M=10.yaml
+
+nohup nice -n 19 python ~/software/pyRetLIFE/scripts/run_plotting.py --config ~/Retrieval_studies/2dtest/VH2O_CL_retrieval_2d.yaml --nproc 32 &>> ~/Retrieval_studies/2dtest/output.txt &
+
+python ~/software/pyRetLIFE/scripts/create_spectrum.py --config ~/configs/VH2O_create_spectrum.yaml
+
+python ~/myCode/Semester_Project_Too/helper_functions.py --config ~/myCode/Semester_Project_Too/P10_comp.yaml
+
+nohup nice -n 19 python ~/myCode/Semester_Project_Too/Retrieval_runner.py --config ~/myCode/Semester_Project_Too/configsn10.yaml &>> ~/Retrieval_studies/sn10/output.txt &
