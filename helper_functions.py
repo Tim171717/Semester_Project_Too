@@ -13,6 +13,7 @@ from pyretlife.retrieval_plotting.posterior_plotting import (
     Generate_Parameter_Titles,
     Scale_Posteriors,
 )
+from pyretlife.retrieval.atmospheric_variables import calculate_polynomial_profile
 
 
 
@@ -326,7 +327,7 @@ def load_data(
         # copy_spectrum(self.results_directory)
 
     try:
-        self.calculate_posterior_pt_profile(n_processes=4,reevaluate_PT=recompute)
+        self.calculate_posterior_pt_profile(n_processes=4,reevaluate_PT=recompute, layers=300)
 
         self.deduce_bond_albedo(stellar_luminosity=1.0,
                             	error_stellar_luminosity=0.01,
@@ -338,7 +339,7 @@ def load_data(
         self.deduce_abundance_profiles(reevaluate_abundance_profiles=recompute)
 
         self.deduce_gravity(true_gravity = 981)
-        self.deduce_surface_temperature(true_surface_temperature = 273)
+        self.deduce_surface_temperature(true_surface_temperature = float(calculate_polynomial_profile(self.parameters['P0']['truth'],self.temp_vars)))
 
     except Exception as e:
         print(f"Error correcting data for {self.results_directory}: {e}")
