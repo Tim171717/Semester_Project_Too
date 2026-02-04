@@ -339,6 +339,7 @@ def load_data(
         self.deduce_abundance_profiles(reevaluate_abundance_profiles=recompute)
 
         self.deduce_gravity(true_gravity = 981)
+        self.calculate_true_pt_profile()
         self.deduce_surface_temperature(true_surface_temperature = float(calculate_polynomial_profile(self.parameters['P0']['truth'],self.temp_vars)))
 
     except Exception as e:
